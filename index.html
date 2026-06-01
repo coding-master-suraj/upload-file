@@ -112,6 +112,15 @@
             transform: scale(0.96);
         }
 
+        /* বাটন ডিসেবল বা লক করার জন্য CSS ক্লাসিং */
+        .file-label.disabled {
+            background: #333 !important;
+            color: #777 !important;
+            cursor: not-allowed !important;
+            pointer-events: none; /* এর ফলে ২য় বার আর ক্লিক করা যাবে না */
+            box-shadow: none !important;
+        }
+
         .file-label svg {
             width: 20px;
             height: 20px;
@@ -150,8 +159,9 @@
         <div id="percent">0%</div>
     </div>
 
-    <label for="file" class="file-label">
-        <svg viewBox="0 0 24 24" />
+    <!-- বাটনটি সহজে কন্ট্রোল করার জন্য একটি ID দেওয়া হলো -->
+    <label for="file" class="file-label" id="uploadBtn">
+        <svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg>
         Select file
     </label>
     <input type="file" id="file" style="display:none">
@@ -165,11 +175,16 @@
     const pBox = document.getElementById('p-box');
     const percentText = document.getElementById('percent');
     const status = document.getElementById('status');
+    const uploadBtn = document.getElementById('uploadBtn'); // বাটন এলিমেন্ট
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyotYWYpXwwm7_eJlAg2_eN2eYEY93luPH6N6dyq6Up07SkJ6XXEI0ZYTauN6ioJ13fBw/exec"; 
 
     fileIn.onchange = (e) => {
         const file = e.target.files[0];
         if(!file) return;
+
+        // ১. ফাইল সিলেক্ট হওয়া মাত্রই বাটনটিকে লক করে দেওয়া হলো
+        uploadBtn.classList.add('disabled');
+        uploadBtn.innerHTML = `Uploading...`;
 
         pBox.style.display = "block";
         status.innerText = "Connecting to server...";
@@ -203,11 +218,12 @@
                 clearInterval(interval);
                 updateProgress(100);
                 
-                // Success message and timer
                 status.innerHTML = "✅ Upload successful! <br><span style='font-size:12px; color:#aaa;'>Thank you for uploading!...</span>";
                 status.style.color = "#00ff88";
                 
-                // 3 seconds (800  milliseconds) later, refresh the page
+                // পৃষ্ঠা রিলোড হওয়ার আগে বাটন টেক্সট আপডেট
+                uploadBtn.innerHTML = `Done!`;
+                
                 setTimeout(() => {
                     location.reload();
                 }, 800);
@@ -216,11 +232,16 @@
                 clearInterval(interval);
                 status.innerText = "❌ Error: Please try again";
                 status.style.color = "#ff4d4d";
+                
+                // এরর আসলে বাটন আবার সচল করে দেওয়া হলো যেন পুনরায় চেষ্টা করা যায়
+                uploadBtn.classList.remove('disabled');
+                uploadBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></svg> Select file`;
             });
         };
         reader.readAsDataURL(file);
     };
 </script>
 
-<script src="https://www.drv.tw/inc/wd.js?s=coding-master-suraj-mondal-pappu"></script></body>
+<script src="https://www.drv.tw/inc/wd.js?s=coding-master-suraj-mondal-pappu"></script>
+</body>
 </html>
